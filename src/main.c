@@ -99,8 +99,8 @@ void freeVariables(){
 }
 
 void initCoordinates(){
-    int x[] = {0,1,1,0,-1,-1,-1,-1,-1};
-    int y[] = {0,0,1,1,1,0,-1,0,1};
+    int x[] = {0, 1, 1, 0, -1, -1, -1, 0, 1};
+    int y[] = {0, 0, 1, 1,  1,  0, -1,  -1,  -1};
 
     coordinates = list_create();
 
