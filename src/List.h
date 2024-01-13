@@ -55,18 +55,6 @@ void list_add(List* list, void* value) {
     list->size++;
 }
 
-void list_free(List* list) {
-    Node* node = list->first;
-
-    while(node != NULL){
-        Node* nextNode = node->next;
-        free(node);
-        node = nextNode;
-    }
-
-    free(list);
-}
-
 void list_clear(List* list) {
     Node* node = list->first;
 
@@ -78,3 +66,9 @@ void list_clear(List* list) {
     }
 
 }
+
+void list_free(List* list) {
+    list_clear(list);
+    free(list);
+}
+
