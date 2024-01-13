@@ -1,6 +1,8 @@
 #include<stdio.h>
 #include<pthread.h>
 #include<stdlib.h>
+#include "Pair.h"
+#include "List.h"
 
 #define Matriz int**
 #define scan_int(x) scanf("%d", &x); 
@@ -20,8 +22,8 @@ Matriz_settings m_settings;
 Matriz matriz;
 
 int main(){
-
     init();
+
     freeVariables();
 
     return 0;
