@@ -39,9 +39,8 @@ List* coordinates;
 pthread_mutex_t mutex;
 
 int main(){
-    puts("Before:");
-    init();
 
+    init();
     calculate_all();
     
     puts("After:");
@@ -59,6 +58,7 @@ void init(){
     printf("Insira a largura da matriz: ");
     scan_int(m_settings.largura);
 
+    
     printf("\nMATRIZ %02dX%02d\n",m_settings.altura, m_settings.largura );
 
     matriz = alloc(m_settings.altura, int, Matriz);
@@ -70,6 +70,7 @@ void init(){
     }
 
 
+    puts("Before:");
     fillMatrix();
     
     initCoordinates();
