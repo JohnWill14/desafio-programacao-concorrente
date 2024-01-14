@@ -1,9 +1,11 @@
 #include<stdio.h>
-#include<pthread.h>
 #include<stdlib.h>
 #include <stdbool.h>
+#include <pthread.h>
+#include <time.h>
 #include "Pair.h"
 #include "List.h"
+
 
 #define Matriz int**
 #define scan_int(x) scanf("%d", &x); 
@@ -13,12 +15,14 @@
 void init();
 void fillMatrix();
 void freeVariables();
-void perform();
+void *perform(void *ptr);
 void initCoordinates();
 int calculate_new_value_for_position(int i,int j);
 int getMatriz(int x, int y);
 void printMatriz();
 bool valid_Coordiante(Pair* p, int x, int y);
+int getMirror(int x, int y);
+void calculate_all();
 
 typedef struct matriz_settings{
     int largura;
@@ -32,11 +36,13 @@ Matriz matriz_mirror;
 
 List* coordinates;
 
+pthread_mutex_t mutex;
+
 int main(){
     puts("Before:");
     init();
 
-    perform();
+    calculate_all();
     
     puts("After:");
     printMatriz();
@@ -67,6 +73,7 @@ void init(){
     fillMatrix();
     
     initCoordinates();
+
 }
 
 void fillMatrix(){
@@ -109,13 +116,38 @@ void initCoordinates(){
         list_add(coordinates, p);
     }
 }
-void perform(){
-    for(int i=0;i<m_settings.altura;i++){
-        for(int j=0;j<m_settings.largura;j++){
-             matriz[i][j] = calculate_new_value_for_position(j,i);
-        }
+
+void calculate_all() {
+    pthread_t* threadsList = alloc(m_settings.altura, pthread_t, pthread_t*);
+
+    int args[m_settings.altura];
+
+    for(int i = 0; i < m_settings.altura; i++) {
+        args[i] = i;
+        pthread_create(&threadsList[i], NULL, perform, (void*)(&args[i]));
     }
 
+    for(int i = 0; i < m_settings.altura; i++) {
+        pthread_join(threadsList[i], NULL);
+    }
+
+    free(threadsList);
+}
+
+void *perform(void *ptr){
+    int *ponteiro_int;
+    ponteiro_int = (int*) ptr;
+    int row = *ponteiro_int; 
+    
+    for(int j=0;j<m_settings.largura;j++){
+        int value = calculate_new_value_for_position(j,row);
+
+        pthread_mutex_lock(&mutex);
+        matriz[row][j] = value;
+        matriz_mirror[row][j] = 1;
+        pthread_mutex_unlock(&mutex);
+    }
+    pthread_exit(NULL);
 }
 
 int calculate_new_value_for_position(int x,int y){
@@ -129,7 +161,6 @@ int calculate_new_value_for_position(int x,int y){
         int py = pair_get_y(p)+y;
 
         if(valid_Coordiante(p, px, py)){
-            printf("(%d %d) %d %d => %dok\n",x,y,px,py, getMatriz(py, px));
             cont++;
             sum += getMatriz(py ,px);
         }
@@ -142,6 +173,10 @@ int getMatriz(int x, int y){
     return matriz[x][y];
 }
 
+int getMirror(int x, int y){
+    return matriz_mirror[x][y];
+}
+
 
 bool valid_Coordiante(Pair* p, int x, int y){
     if(x<0||y<0){
@@ -150,6 +185,14 @@ bool valid_Coordiante(Pair* p, int x, int y){
 
     if(x>=m_settings.largura || y>=m_settings.altura ){
         return false;
+    }
+
+
+    if(pair_get_y(p)<0){
+        while(getMirror(y,x)==0){
+            //wait..
+            printf("%d %d (%d %d)\n",x,y,pair_get_x(p),pair_get_y(p));
+        }
     }
 
     return true;
