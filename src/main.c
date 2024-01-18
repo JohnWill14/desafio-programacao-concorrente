@@ -23,6 +23,7 @@ void printMatriz();
 bool valid_Coordiante(Pair* p, int x, int y);
 int getMirror(int x, int y);
 void calculate_all();
+int get_mirror_column(int x);
 
 typedef struct matriz_settings{
     int largura;
@@ -62,13 +63,12 @@ void init(){
     printf("\nMATRIZ %02dX%02d\n",m_settings.altura, m_settings.largura );
 
     matriz = alloc(m_settings.altura, int, Matriz);
-    matriz_mirror = alloc(m_settings.altura, int, Matriz);
+    matriz_mirror = alloc(m_settings.altura , int, Matriz);
 
     for(int i=0;i<m_settings.altura;i++){
          matriz[i] = alloc(m_settings.largura, int, int*);
-         matriz_mirror[i] = alloc(m_settings.largura, int, int*);
+         matriz_mirror[i] = alloc(get_mirror_column(m_settings.largura), int, int*);
     }
-
 
     puts("Before:");
     fillMatrix();
@@ -83,10 +83,15 @@ void fillMatrix(){
     for(int i=0;i<m_settings.altura;i++){
         for(int j=0;j<m_settings.largura;j++){
              matriz[i][j] = rand()%10;
-             matriz_mirror[i][j] = 0;
              printf("%d ",matriz[i][j]);
         }
         puts("");
+    }
+
+    for(int i=0;i<m_settings.altura;i++){
+        for(int j=0;j<get_mirror_column(m_settings.largura) / 8;j++){
+             matriz_mirror[i][j] = 0;
+        }
     }
 }
 
@@ -145,7 +150,7 @@ void *perform(void *ptr){
 
         pthread_mutex_lock(&mutex);
         matriz[row][j] = value;
-        matriz_mirror[row][j] = 1;
+        matriz_mirror[row][get_mirror_column(j)] |= 1 << (j % 8);
         pthread_mutex_unlock(&mutex);
     }
     pthread_exit(NULL);
@@ -175,7 +180,9 @@ int getMatriz(int x, int y){
 }
 
 int getMirror(int x, int y){
-    return matriz_mirror[x][y];
+    int bit = y % 8;
+    int pos = get_mirror_column(y);
+    return matriz_mirror[x][pos] & (1 << bit);
 }
 
 
@@ -190,7 +197,7 @@ bool valid_Coordiante(Pair* p, int x, int y){
 
 
     if(pair_get_y(p)<0){
-        while(getMirror(y,x)==0){
+        while(getMirror(y, x) == 0){
             //wait..
             printf("%d %d (%d %d)\n",x,y,pair_get_x(p),pair_get_y(p));
         }
@@ -206,4 +213,9 @@ void printMatriz(){
         }
         printf("\n");
     }
+}
+
+int get_mirror_column(int x)
+{
+    return (x + 8 - 1) / 8;
 }
