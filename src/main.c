@@ -199,7 +199,6 @@ bool valid_Coordiante(Pair* p, int x, int y){
     if(pair_get_y(p)<0){
         while(getMirror(y, x) == 0){
             //wait..
-            printf("%d %d (%d %d)\n",x,y,pair_get_x(p),pair_get_y(p));
         }
     }
 
