@@ -112,12 +112,12 @@ void freeVariables(){
 }
 
 void initCoordinates(){
-    int x[] = {0, 1, 1, 0, -1, -1, -1, 0, 1};
-    int y[] = {0, 0, 1, 1,  1,  0, -1,  -1,  -1};
+    int x[] = { 1, 1, 0, -1, -1, -1, 0, 1};
+    int y[] = { 0, 1, 1,  1,  0, -1,  -1,  -1};
 
     coordinates = list_create();
 
-    for(int i=0;i<9;i++){
+    for(int i=0;i<8;i++){
         Pair* p = create_pair(x[i], y[i]);
         list_add(coordinates, p);
     }
